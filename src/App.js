@@ -3,15 +3,51 @@ import { AddPlant } from './components/AddPlant';
 import {Plants} from "./components/Plants";
 import {AddCategory} from "./components/AddCategory"
 import { Categories } from './components/Categories';
+import { useEffect, useState } from 'react';
+import { useLocalState } from './util/UseLocalStorage';
+import { Route, Routes } from 'react-router-dom';
+import Dashboard from './components/Dashboard';
+import Login from './components/Login';
+import PrivateRoute from './PrivateRoute/PrivateRoute';
+import Homepage from './components/Homepage';
 
 function App() {
+
+  const [jwt, setJwt] = useLocalState("", "jwt");
+
+  // useEffect(() => {
+  //   if(!jwt) {
+  //     const reqBody = {
+  //       username: "test",
+  //       password: "test"
+  //     }
+
+  //     fetch('http://localhost:8071/api/auth/login',{
+  //     headers: {
+  //       "Content-Type": "application/json"
+  //     },
+  //     method: "post",
+  //     body: JSON.stringify(reqBody)
+  //     })
+  //       .then(data => data.json())
+  //       .then(response => {
+  //         setJwt(response.answer);
+  //       });
+  //   }
+  // },[]);
+
+  
+
   return (
-    <div className="App">
-      <AddPlant/>
-      <AddCategory/>
-      <Plants/>
-      <Categories/>
-    </div>
+    <Routes>
+      <Route path="dashboard" element={ 
+        <PrivateRoute>
+          <Dashboard/> 
+        </PrivateRoute>
+      }/>
+      <Route path="login" element={ <Login/> }/>
+      <Route path="/" element={<Homepage/>}/>
+    </Routes>
   );
 }
 
