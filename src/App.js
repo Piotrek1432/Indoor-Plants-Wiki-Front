@@ -10,33 +10,11 @@ import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import PrivateRoute from './PrivateRoute/PrivateRoute';
 import Homepage from './components/Homepage';
+import Register from './components/Register';
 
 function App() {
 
   const [jwt, setJwt] = useLocalState("", "jwt");
-
-  // useEffect(() => {
-  //   if(!jwt) {
-  //     const reqBody = {
-  //       username: "test",
-  //       password: "test"
-  //     }
-
-  //     fetch('http://localhost:8071/api/auth/login',{
-  //     headers: {
-  //       "Content-Type": "application/json"
-  //     },
-  //     method: "post",
-  //     body: JSON.stringify(reqBody)
-  //     })
-  //       .then(data => data.json())
-  //       .then(response => {
-  //         setJwt(response.answer);
-  //       });
-  //   }
-  // },[]);
-
-  
 
   return (
     <Routes>
@@ -46,6 +24,7 @@ function App() {
         </PrivateRoute>
       }/>
       <Route path="login" element={ <Login/> }/>
+      <Route path="register" element={ <Register/> }/>
       <Route path="/" element={<Homepage/>}/>
     </Routes>
   );

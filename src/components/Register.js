@@ -1,20 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLocalState } from '../util/UseLocalStorage';
 
-const Login = () => {
+const Register = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
     const [jwt, setJwt] = useLocalState("", "jwt");
 
-    function sendLoginRequest() {
+    function sendRegisterRequest() {
         const reqBody = {
             username: username,
             password: password
         };
         
-      fetch('http://localhost:8071/api/auth/login',{
+      fetch('http://localhost:8071/api/auth/register',{
       headers: {
         "Content-Type": "application/json"
       },
@@ -23,7 +22,7 @@ const Login = () => {
       })
         .then((response) => {
             if (response.status === 200) return response.json();
-            else return Promise.reject("Błędne dane logowania");
+            else return Promise.reject("Ten login jest już zajęty");
         })
         .then(response => {
             setJwt(response.answer);
@@ -32,12 +31,10 @@ const Login = () => {
         .catch((message) => {
             alert(message);
         });
-        
     }
-
     return (
         <>
-            <h1 style={{ margin: "1em" }}>Logowanie</h1>
+            <h1 style={{ margin: "1em" }}>Rejestracja</h1>
             <div style={{ margin: "1em" }}>
                 <label htmlFor="username">Login</label><br/>
                 <input type="login" id="username" value={username}
@@ -48,9 +45,14 @@ const Login = () => {
                 <input type="haslo" id="password"value={password}
                 onChange={(e) => setPassword(e.target.value)}/>
             </div>
-            <div style={{ margin: "1em" }}><button id="submit" type="button"size="lg" onClick={() => sendLoginRequest()}>Zaloguj</button></div>
+            <div style={{ margin: "1em" }}>
+                <label htmlFor="password">Powtórz hasło</label><br/>
+                <input type="haslo" id="password"value={password}
+                onChange={(e) => setPassword(e.target.value)}/>
+            </div>
+            <div style={{ margin: "1em" }}><button id="submit" type="button"size="lg" onClick={() => sendRegisterRequest()}>Zarejestruj konto</button></div>
         </>
     );
-};
+}
 
-export default Login;
+export default Register;
