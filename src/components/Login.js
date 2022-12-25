@@ -27,7 +27,9 @@ const Login = () => {
         })
         .then(response => {
             setJwt(response.answer);
-            window.location.href= "dashboard";
+            console.log(response.role);
+            if(response.role==="ROLE_ADMIN") window.location.href= "adminPanel";
+            else window.location.href= "dashboard";
         })
         .catch((message) => {
             alert(message);

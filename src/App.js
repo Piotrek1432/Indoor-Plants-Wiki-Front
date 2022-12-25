@@ -11,6 +11,8 @@ import Login from './components/Login';
 import PrivateRoute from './PrivateRoute/PrivateRoute';
 import Homepage from './components/Homepage';
 import Register from './components/Register';
+import PlantView from './components/PlantView';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
 
@@ -21,6 +23,16 @@ function App() {
       <Route path="dashboard" element={ 
         <PrivateRoute>
           <Dashboard/> 
+        </PrivateRoute>
+      }/>
+      <Route path="adminPanel" element={ 
+        <PrivateRoute>
+          <AdminPanel/> 
+        </PrivateRoute>
+      }/>
+      <Route path="/plant/:id" element={
+        <PrivateRoute>
+          <PlantView/>
         </PrivateRoute>
       }/>
       <Route path="login" element={ <Login/> }/>
