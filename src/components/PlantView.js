@@ -26,6 +26,7 @@ const PlantView = () => {
             {plant ? (
                 <>
                     <h2>Nazwa: {plant.name}</h2>
+                    <img src={plant.imagePath} alt='Brak zdjęcia'/>
                 </>
             ) : (
                 <></>

@@ -50,7 +50,9 @@ const Login = () => {
                 <input type="haslo" id="password"value={password}
                 onChange={(e) => setPassword(e.target.value)}/>
             </div>
-            <div style={{ margin: "1em" }}><button id="submit" type="button"size="lg" onClick={() => sendLoginRequest()}>Zaloguj</button></div>
+            <div style={{ margin: "1em" }}>
+                <button id="submit" type="button"size="lg" onClick={() => sendLoginRequest()}>Zaloguj</button>
+            </div>
         </>
     );
 };
