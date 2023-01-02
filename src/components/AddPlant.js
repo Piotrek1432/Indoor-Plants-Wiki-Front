@@ -115,7 +115,8 @@ const AddPlant = () => {
     //Form fields
     const [inputs, setInputs] = useState({
         name: "",
-        description: ""
+        description: "",
+        imageUri: ""
     });
 
     const handleChange = (e) => {
@@ -125,39 +126,68 @@ const AddPlant = () => {
         }))
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    let config = {
+        headers: {
+            "Authorization": `Bearer ${jwt}`
+        }
+      }
 
-        console.log(inputs);
-        fetch("http://localhost:8071/wiki/createNewPlant", {
-            method: "POST",
-            headers: {
-                'Content-Type': "application/json",
-                "Authorization": `Bearer ${jwt}`
-            },
-            body: JSON.stringify(inputs)
-        })
-    }
-
-    const uploadFile = async() => {
+    const handleSubmit = async() => {
         try{
             setLoading(true)
             const formData = new FormData();
             formData.append("file",file)
-            const API_URL = "http://localhost:8071/plants/imageTest"
-            const response = await axios.put(API_URL,formData,{
-                onUploadProgress:(ProgressEvent)=>{
-                    const percentCompleted = (Math.round(ProgressEvent.loaded * 100)/ProgressEvent.total);
-                    setPrecent(percentCompleted);
-                }
-            });
-            setDownloadUri(response.data.fileDownloadUri)
-            setLoading(false)
-            setSuccess(true)
+            const API_URL = `http://localhost:8071/wiki/addImage/${inputs.name}`
+            if(file){
+                const response = await axios.put(API_URL,formData,config,{
+                    onUploadProgress:(ProgressEvent)=>{
+                        const percentCompleted = (Math.round(ProgressEvent.loaded * 100)/ProgressEvent.total);
+                        setPrecent(percentCompleted);
+                    }
+                }).then(response => {
+                    setDownloadUri(response.data.fileDownloadUri);
+                    setLoading(false);
+                    setSuccess(true);
+                    if(response.data.fileDownloadUri !== "")inputs.imageUri = response.data.fileDownloadUri;
+                    else inputs.imageUri = "http://localhost:8071/plants/test/default.jpg";
+                    console.log(inputs);
+                    console.log(response.data.fileDownloadUri);
+                    fetch("http://localhost:8071/wiki/createNewPlant", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': "application/json",
+                            "Authorization": `Bearer ${jwt}`
+                        },
+                        body: JSON.stringify(inputs)
+                    })
+                });
+            }else{
+                fetch("http://localhost:8071/wiki/createNewPlant", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': "application/json",
+                            "Authorization": `Bearer ${jwt}`
+                        },
+                        body: JSON.stringify(inputs)
+                    })
+            }
+            
+            
         }catch(err){
             alert(err.message)
         }
+        // if(downloadUri !== "")inputs.imageUri = downloadUri;
+        // else inputs.imageUri = "http://localhost:8071/plants/test/default.jpg";
+        // console.log(inputs);
+        // console.log(downloadUri);
+        // fetch("http://localhost:8071/wiki/createNewPlant", {
+        //     method: "POST",
+        //     headers: {
+        //         'Content-Type': "application/json",
+        //         "Authorization": `Bearer ${jwt}`
+        //     },
+        //     body: JSON.stringify(inputs)
+        // })
     };
 
     return (
@@ -177,7 +207,7 @@ const AddPlant = () => {
             </AppBar>
             <br/>  
 
-            <form className='classes.root' onSubmit={handleSubmit}>
+            <form className='classes.root'>
                 <div style={{ margin: "10em" , marginTop: "3em"}}>
                     <TextField required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleChange}/><br/><br/>
                     {/* adding image */}
@@ -215,7 +245,6 @@ const AddPlant = () => {
                                             aria-label="save"
                                             color="primary"
                                             className={buttonClassname}
-                                            onClick={uploadFile}
                                         >
                                             {success ? <CheckIcon /> : <CloudUpload />}
                                         </Fab>
@@ -244,11 +273,10 @@ const AddPlant = () => {
                         </Grid>
                     </Paper>
                     </Container>
-
-
                     {/* ------------ */}
                     <br/><br/><TextField name="description" multiline minRows={4} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleChange} />
-                    <br/><br/><Button type='submit'>Wyślij do zatwierdzenia</Button> 
+                    <br/><br/>
+                    {inputs.name && (<Button onClick={handleSubmit}>Wyślij do zatwierdzenia</Button> )}
                 </div>
             </form>
         </>

@@ -10,6 +10,8 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import { Box, CssBaseline, Toolbar, Typography } from '@material-ui/core';
+import AppBar from '@material-ui/core/AppBar';
 
 const useStyles = makeStyles({
     table: {
@@ -40,16 +42,46 @@ const AdminPanel = () => {
 
     function handleSubmit(id) {
         console.log("do zatwierdzenia "+id);
+        fetch(`http://localhost:8071/administration/acceptNewPlant/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            },
+            method: "PATCH"
+        }).then(response => {
+            if(response.status === 200)window.location.href = "/adminPanel"
+        });
     }
 
     function handleReject(id) {
         console.log("do odrzucenia "+id);
+        fetch(`http://localhost:8071/administration/rejectNewPlant/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            },
+            method: "PATCH"
+        }).then(response => {
+            if(response.status === 200)window.location.href = "/adminPanel"
+        });
     }
 
     return (
         <div>
-            <h1>Panel administratora</h1>
-            <Table className={classes.table} aria-label="simple table">
+            <CssBaseline />
+            <AppBar position="static" classes={{root: classes.appBarColor}}>
+                <Toolbar>
+                    <Typography variant="h6" className={classes.title}>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Panel Administratora</Box>
+                    </Typography>
+                    <Typography>
+                        <Button color="inherit" onClick={() => {setJwt("");
+                        window.location.href = "/"
+                    }}>Wyloguj</Button>
+                    </Typography>
+                </Toolbar>
+            </AppBar>
+            <Table style={{ margin: "1em" }} className={classes.table} aria-label="simple table">
                 <TableHead>
                     <TableRow>
                         <TableCell>Nazwa</TableCell>
@@ -62,8 +94,9 @@ const AdminPanel = () => {
                         <TableRow key={index}>
                                 <TableCell>{changes.name}</TableCell>
                                 <TableCell>{changes.description}</TableCell>
-                                <TableCell><Button onClick={() => handleSubmit(changes.id)}>Zatweirdz</Button></TableCell>
-                                <TableCell><Button onClick={() => handleReject(changes.id)}>Odrzuć</Button></TableCell>
+                                <TableCell><img width={100} height={100} src={changes.imagePath} alt='Brak zdjęcia'/></TableCell>
+                                <TableCell><Button variant="contained" color="primary" onClick={() => handleSubmit(changes.id)}>Zatweirdz</Button></TableCell>
+                                <TableCell><Button variant="contained" color="primary" onClick={() => handleReject(changes.id)}>Odrzuć</Button></TableCell>
                         </TableRow>
                         )
                     })}
