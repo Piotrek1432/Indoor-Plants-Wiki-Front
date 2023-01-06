@@ -1,7 +1,7 @@
 import './App.css';
 import AddPlant from './components/AddPlant';
 import {Plants} from "./components/Plants";
-import {AddCategory} from "./components/AddCategory"
+import AddCategory from "./components/AddCategory"
 import { Categories } from './components/Categories';
 import { useEffect, useState } from 'react';
 import { useLocalState } from './util/UseLocalStorage';
@@ -38,6 +38,11 @@ function App() {
       <Route path="/addPlant" element={
         <PrivateRoute>
           <AddPlant/>
+        </PrivateRoute>
+      }/>
+      <Route path="/addCategory" element={
+        <PrivateRoute>
+          <AddCategory/>
         </PrivateRoute>
       }/>
       <Route path="login" element={ <Login/> }/>

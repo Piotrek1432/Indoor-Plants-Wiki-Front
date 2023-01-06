@@ -30,6 +30,7 @@ const useStyles = makeStyles((theme) => ({
 const Homepage = () => {
     const classes = useStyles();
     const [plants, setPlants] = useState(null);
+    const [categories, setCategories] = useState(null);
 
     function goToLoginPage() {
         window.location.href = "login";
@@ -51,7 +52,32 @@ const Homepage = () => {
             setPlants(plantsData);
             console.log(plantsData);
         });
+
+        fetch("http://localhost:8071/categories", {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "GET"
+        }).then(response => {
+            if(response.status === 200) return response.json();
+        }).then(categoriesData => {
+            setCategories(categoriesData);
+        });
     },[]);
+
+    function selectCategory(id) {
+        console.log("Wybrana kategoria "+id);
+        fetch(`http://localhost:8071/plants/category/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "GET"
+        }).then(response => {
+            if(response.status === 200) return response.json();
+        }).then(plantsData => {
+            setPlants(plantsData);
+        });
+    }
 
     return (
         <>
@@ -69,6 +95,24 @@ const Homepage = () => {
             </AppBar>
             <br/>
 
+            {/* categories: */}
+            <div style={{ margin: "1em" }}>
+                    <Typography variant="h6" className={classes.title} component={'span'}>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Kategorie: </Box>
+                    </Typography>
+                    <React.Fragment><Button variant="outlined" color="primary" onClick={() => window.location.href = "/"}>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>
+                            Wszystkie rośliny
+                        </Box>
+                        </Button>{"\xa0\xa0\xa0\xa0\xa0"}</React.Fragment>
+                    {categories ? categories.map((category, index) =>
+                        <React.Fragment key={index}><Button variant="outlined" color="primary" onClick={() => selectCategory(category.id)}>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>
+                            {category.name}
+                        </Box>
+                        </Button>{"\xa0"}</React.Fragment>
+                    ) : <></>}
+            </div>
 
 
             <div style={{ margin: "5em" }}>

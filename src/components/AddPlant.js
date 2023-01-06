@@ -276,7 +276,7 @@ const AddPlant = () => {
                     {/* ------------ */}
                     <br/><br/><TextField name="description" multiline minRows={4} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleChange} />
                     <br/><br/>
-                    {inputs.name && (<Button onClick={handleSubmit}>Wyślij do zatwierdzenia</Button> )}
+                    {inputs.name && (<Button onClick={handleSubmit} variant="outlined">Wyślij do zatwierdzenia</Button> )}
                 </div>
             </form>
         </>
