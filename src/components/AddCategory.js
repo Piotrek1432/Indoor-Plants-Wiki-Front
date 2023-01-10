@@ -19,6 +19,12 @@ import { LinearProgress } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import axios from 'axios';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Slide from '@material-ui/core/Slide';
 
 const useStyles = makeStyles((theme) => ({
     title: {
@@ -29,13 +35,22 @@ const useStyles = makeStyles((theme) => ({
 const AddCategory = () => {
     const classes = useStyles();
     const [jwt, setJwt] = useLocalState("", "jwt");
+    const [openDialog, setOpenDialog] = React.useState(false);
+    const [openBadDialog, setOpenBadDialog] = React.useState(false);
 
     const [inputs, setInputs] = useState({
         name: "",
         description: "",
     });
 
-    const handleChange = (e) => {
+    const handleName = (e) => {
+        setInputs((prevState)=>({
+            ...prevState,
+            [e.target.name] : e.target.value.toUpperCase()
+        }))
+    }
+
+    const handleDesc = (e) => {
         setInputs((prevState)=>({
             ...prevState,
             [e.target.name] : e.target.value
@@ -53,9 +68,22 @@ const AddCategory = () => {
                             "Authorization": `Bearer ${jwt}`
                         },
                         body: JSON.stringify(inputs)
-        })
+        }).then(response => {
+            if(response.status === 200) setOpenDialog(true);
+            else setOpenBadDialog(true);
+    });
 
     }
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        window.location.href= "dashboard"
+      };
+
+    const handleCloseBadDialog = () => {
+        setOpenBadDialog(false);
+        window.location.href= "dashboard"
+      };
 
     return (
         <>
@@ -76,11 +104,51 @@ const AddCategory = () => {
 
             <form className='classes.root' onSubmit={handleSubmit}>
                 <div style={{ margin: "10em" , marginTop: "3em", marginRight: "70em"}}>
-                    <TextField required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleChange}/><br/><br/>
-                    <TextField name="description" multiline minRows={3} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleChange} /><br/><br/>
+                    <TextField style={{ textTransform: 'uppercase'}} required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleName}/><br/><br/>
+                    <TextField name="description" multiline minRows={3} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleDesc} /><br/><br/>
                     <Button type="submit" variant="outlined">Dodaj kategorię</Button>
                 </div>
-            </form>  
+            </form>
+
+            <Dialog
+                open={openDialog}
+                keepMounted
+                onClose={handleCloseDialog}
+                aria-labelledby="alert-dialog-slide-title"
+                aria-describedby="alert-dialog-slide-description"
+            >
+                <DialogTitle id="alert-dialog-slide-title">{"Dzięki!"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-slide-description">
+                    Pomyślnie utworzono nową katgorię
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog
+                open={openBadDialog}
+                keepMounted
+                onClose={handleCloseBadDialog}
+                aria-labelledby="alert-dialog-slide-title"
+                aria-describedby="alert-dialog-slide-description"
+            >
+                <DialogTitle id="alert-dialog-slide-title">{"Błąd!"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-slide-description">
+                    Wygląda na to, że kategoria o takiej nazwie jest już w bazie
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseBadDialog} color="primary">
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 };

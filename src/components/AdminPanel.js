@@ -94,6 +94,11 @@ const AdminPanel = () => {
                         <TableRow key={index}>
                                 <TableCell>{changes.name}</TableCell>
                                 <TableCell>{changes.description}</TableCell>
+                                <TableCell>{changes.positiveQualities}</TableCell>
+                                <TableCell>{changes.insolation}</TableCell>
+                                <TableCell>{changes.watering}</TableCell>
+                                <TableCell>{changes.fertilization}</TableCell>
+                                <TableCell>{changes.badSignals}</TableCell>
                                 <TableCell><img width={100} height={100} src={changes.imagePath} alt='Brak zdjęcia'/></TableCell>
                                 <TableCell><Button variant="contained" color="primary" onClick={() => handleSubmit(changes.id)}>Zatweirdz</Button></TableCell>
                                 <TableCell><Button variant="contained" color="primary" onClick={() => handleReject(changes.id)}>Odrzuć</Button></TableCell>

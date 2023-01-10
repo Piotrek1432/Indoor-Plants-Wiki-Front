@@ -23,7 +23,8 @@ const useStyles = makeStyles((theme) => ({
     },
     root: {
         maxWidth: 250,
-        width:250
+        width:250,
+        height:350
       },
   }));
 
@@ -76,6 +77,7 @@ const Homepage = () => {
             if(response.status === 200) return response.json();
         }).then(plantsData => {
             setPlants(plantsData);
+            console.log(plantsData);
         });
     }
 
@@ -120,7 +122,7 @@ const Homepage = () => {
                 {plants ? plants.map((plant,index) =>
                 <Grid key={index} container item sm={3} spacing={0}>
                     <Card className={classes.root}>
-                        <CardActionArea onClick={() => goToRegistrationPage()}>
+                        <CardActionArea onClick={() => window.location.href = `/plant/${plant.id}`}>
                             <CardMedia 
                             className={classes.media}
                             image={plant.imagePath}
@@ -128,7 +130,7 @@ const Homepage = () => {
                             component='img'
                             />
                             <CardContent>
-                                <Typography gutterBottom variant="h5" component="h2">
+                                <Typography gutterBottom variant="h6" component="h2">
                                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>
                                         {plant.name}
                                     </Box>

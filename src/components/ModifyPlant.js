@@ -75,6 +75,10 @@ const useStyles = makeStyles((theme) => ({
       },
       fabProgress: {
         color: green[500],
+        position: 'absolute',
+        top: -6,
+        left: -6,
+        zIndex: 1,
       },
       buttonProgress: {
         color: green[500],
@@ -86,7 +90,8 @@ const useStyles = makeStyles((theme) => ({
       },
   }));
 
-const AddPlant = () => {
+const ModifyPlant = () => {
+    const plantId = window.location.href.split("/modifyPlant/")[1];
     const classes = useStyles();
     const [loading, setLoading] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
@@ -96,9 +101,43 @@ const AddPlant = () => {
     const [preview,setPreview] = React.useState();
     const [precent,setPrecent] = React.useState(0);
     const [downloadUri, setDownloadUri] = React.useState();
+    const [plant, setPlant] = useState(null);    
     const [openDialog, setOpenDialog] = React.useState(false);
-    const [openBadDialog, setOpenBadDialog] = React.useState(false);
-    
+
+
+    const [inputs, setInputs] = useState({
+        name: "",
+        description: "",
+        imageUri: "",
+        positiveQualities: "",
+        insolation: "",
+        watering: "",
+        fertilization: "",
+        badSignals: ""
+    });
+
+    useEffect(() => {
+        fetch(`http://localhost:8071/plants/${plantId}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            },
+            method: "GET"
+        }).then(response => {
+            if(response.status === 200) return response.json();
+        }).then(plantData => {
+            setPlant(plantData);
+            inputs.name = plantData.name;
+            inputs.description = plantData.description;
+            inputs.positiveQualities = plantData.positiveQualities;
+            inputs.insolation = plantData.insolation;
+            inputs.watering = plantData.watering;
+            inputs.fertilization = plantData.fertilization;
+            inputs.badSignals = plantData.badSignals;
+            inputs.imageUri = plantData.imagePath;
+            setPreview(plantData.imagePath);
+        });
+    }, [])
 
     const buttonClassname = clsx({
         [classes.buttonSuccess]: success,
@@ -116,28 +155,12 @@ const AddPlant = () => {
     const {ref,...rootProps} = getRootProps()
 
     //Form fields
-    const [inputs, setInputs] = useState({
-        name: "",
-        description: "",
-        imageUri: "",
-        positiveQualities: "",
-        insolation: "",
-        watering: "",
-        fertilization: "",
-        badSignals: ""
-    });
+
 
     const handleChange = (e) => {
         setInputs((prevState)=>({
             ...prevState,
             [e.target.name] : e.target.value
-        }))
-    }
-
-    const handleChangeName = (e) => {
-        setInputs((prevState)=>({
-            ...prevState,
-            [e.target.name] : e.target.value.toUpperCase()
         }))
     }
 
@@ -167,7 +190,7 @@ const AddPlant = () => {
                     else inputs.imageUri = "http://localhost:8071/plants/test/default.jpg";
                     console.log(inputs);
                     console.log(response.data.fileDownloadUri);
-                    fetch("http://localhost:8071/wiki/createNewPlant", {
+                    fetch(`http://localhost:8071/wiki/modifyPlant/${plantId}`, {
                         method: "POST",
                         headers: {
                             'Content-Type': "application/json",
@@ -176,10 +199,10 @@ const AddPlant = () => {
                         body: JSON.stringify(inputs)
                     }).then(response => {
                         if(response.status === 200) setOpenDialog(true);
-                    });
+                });
                 });
             }else{
-                fetch("http://localhost:8071/wiki/createNewPlant", {
+                fetch(`http://localhost:8071/wiki/modifyPlant/${plantId}`, {
                         method: "POST",
                         headers: {
                             'Content-Type': "application/json",
@@ -188,9 +211,10 @@ const AddPlant = () => {
                         body: JSON.stringify(inputs)
                     }).then(response => {
                         if(response.status === 200) setOpenDialog(true);
-                        else setOpenBadDialog(true);
                 });
-            }           
+            }
+            
+            
         }catch(err){
             alert(err.message)
         }
@@ -198,12 +222,7 @@ const AddPlant = () => {
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
-        window.location.href= "dashboard"
-      };
-
-      const handleCloseBadDialog = () => {
-        setOpenBadDialog(false);
-        window.location.href= "dashboard"
+        window.location= "http://localhost:3000/dashboard"
       };
 
     return (
@@ -212,7 +231,7 @@ const AddPlant = () => {
             <AppBar position="static" classes={{root: classes.appBarColor}}>
                 <Toolbar>
                     <Typography variant="h6" className={classes.title} component={'span'}>
-                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Dodaj roślinę</Box>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Zmodyfikuj wpis</Box>
                     </Typography>
                     <Typography component={'span'}>
                         <Button color="inherit" onClick={() => {setJwt("");
@@ -225,7 +244,9 @@ const AddPlant = () => {
 
             <form className='classes.root'>
                 <div style={{ margin: "10em" , marginTop: "3em"}}>
-                    <TextField required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleChangeName}/><br/><br/>
+                <Typography variant="h6" className={classes.title} component={'span'}>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>{inputs.name}</Box>
+                    </Typography>
                     {/* adding image */}
                     <Container maxWidth="xl">
                     <Paper elevation={10} >
@@ -256,12 +277,35 @@ const AddPlant = () => {
                                     alt='some value'/>
                                 <Divider />
                                 {file && (<>
+                                    <div className={classes.wrapper}>
+                                        <Fab
+                                            aria-label="save"
+                                            color="primary"
+                                            className={buttonClassname}
+                                        >
+                                            {success ? <CheckIcon /> : <CloudUpload />}
+                                        </Fab>
+                                        {loading && <CircularProgress size={68} className={classes.fabProgress} />}
+                                    </div>
                                     <Grid container style={{marginTop:16}} alignItems="center">
                                         <Grid item xs={10}>
                                             {file && <Typography variant="body">{file.name}</Typography>}
+                                            {loading && (<div>
+                                                <LinearProgress variant="detarminate" value={100}/>
+                                                <div style={{display:'flex',alignItems:'center', justifyContent:'center'}}>
+                                                    <Typography variant="body">100%</Typography>
+                                                </div>
+                                            </div>)}
                                         </Grid>
                                     </Grid>
                                 </>)}
+
+                                {success && (
+                                    <Typography>
+                                        <a href={downloadUri} target="_blank">asd</a>
+                                    </Typography>
+                                )}
+
                             </Grid>
                         </Grid>
                     </Paper>
@@ -276,7 +320,6 @@ const AddPlant = () => {
                     <br/><br/>
                     {inputs.name && (<Button onClick={handleSubmit} variant="outlined">Wyślij do zatwierdzenia</Button> )}
                     {!inputs.name && (<><Button onClick={handleSubmit} variant="outlined" disabled>Wyślij do zatwierdzenia</Button> <font color="red">Wymagane jest podanie nazwy rośliny </font></>)}
-                    {loading ? <CircularProgress size={68} className={classes.fabProgress}/> : <></>}
                 </div>
             </form>
 
@@ -290,7 +333,7 @@ const AddPlant = () => {
                 <DialogTitle id="alert-dialog-slide-title">{"Dzięki!"}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-slide-description">
-                    Twój wpis został wysłany do weryfikacji. Po zatwierdzeniu przez administratora dodana przez Ciebie roślina pojawi się na stronie
+                    Twoja modyfikacja została wysłana do weryfikacji. Po zatwierdzeniu przez administratora zmiany któych dokonałeś pojawią się na stronie
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -299,28 +342,8 @@ const AddPlant = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <Dialog
-                open={openBadDialog}
-                keepMounted
-                onClose={handleCloseBadDialog}
-                aria-labelledby="alert-dialog-slide-title"
-                aria-describedby="alert-dialog-slide-description"
-            >
-                <DialogTitle id="alert-dialog-slide-title">{"Błąd!"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-slide-description">
-                    Wygląda na to, że roślina o takiej nazwie jest już w bazie
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseBadDialog} color="primary">
-                        OK
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </>
     );
 };
 
-export default AddPlant;
+export default ModifyPlant;

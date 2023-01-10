@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocalState } from '../util/UseLocalStorage';
+import { Box, CssBaseline, TextField, Toolbar, Typography } from '@material-ui/core';
+import Input from '@material-ui/core/Input';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import Button from '@material-ui/core/Button';
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -38,21 +43,32 @@ const Login = () => {
     }
 
     return (
-        <>
-            <h1 style={{ margin: "1em" }}>Logowanie</h1>
+        <><br/><br/>
+        <div style={{ margin: "auto",
+            width: "400px",
+            border: "3px solid green",
+            borderRadius: "10px",
+            padding: "10px" }}>
+            <Typography variant="h3" component={'span'}>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Logowanie</Box>
+            </Typography>
             <div style={{ margin: "1em" }}>
                 <label htmlFor="username">Login</label><br/>
-                <input type="login" id="username" value={username}
-                onChange={(e) => setUsername(e.target.value)}/>
+                <Input required type="login" id="username" value={username} onChange={(e) => setUsername(e.target.value)}/>
             </div>
             <div style={{ margin: "1em" }}>
                 <label htmlFor="password">Hasło</label><br/>
-                <input type="haslo" id="password"value={password}
-                onChange={(e) => setPassword(e.target.value)}/>
+                <Input
+                    variant="filled"
+                    id="password"
+                    type='password'
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}/>
             </div>
             <div style={{ margin: "1em" }}>
-                <button id="submit" type="button"size="lg" onClick={() => sendLoginRequest()}>Zaloguj</button>
+                <Button variant="outlined" id="submit" type="button"size="lg" onClick={() => sendLoginRequest()}>Zaloguj</Button>
             </div>
+        </div>
         </>
     );
 };

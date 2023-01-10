@@ -1,5 +1,6 @@
 import './App.css';
 import AddPlant from './components/AddPlant';
+import ModifyPlant from './components/ModifyPlant';
 import {Plants} from "./components/Plants";
 import AddCategory from "./components/AddCategory"
 import { Categories } from './components/Categories';
@@ -30,14 +31,14 @@ function App() {
           <AdminPanel/> 
         </PrivateRoute>
       }/>
-      <Route path="/plant/:id" element={
-        <PrivateRoute>
-          <PlantView/>
-        </PrivateRoute>
-      }/>
       <Route path="/addPlant" element={
         <PrivateRoute>
           <AddPlant/>
+        </PrivateRoute>
+      }/>
+      <Route path="/modifyPlant/:id" element={
+        <PrivateRoute>
+          <ModifyPlant/>
         </PrivateRoute>
       }/>
       <Route path="/addCategory" element={
@@ -46,6 +47,7 @@ function App() {
         </PrivateRoute>
       }/>
       <Route path="login" element={ <Login/> }/>
+      <Route path="/plant/:id" element={<PlantView/>}/>
       <Route path="register" element={ <Register/> }/>
       <Route path="/" element={<Homepage/>}/>
     </Routes>

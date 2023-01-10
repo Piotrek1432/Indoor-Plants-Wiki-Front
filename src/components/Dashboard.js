@@ -19,6 +19,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Container from "@material-ui/core/Container";
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -33,7 +36,8 @@ const useStyles = makeStyles((theme)=>({
     },
     root: {
         maxWidth: 250,
-        width:250
+        width:250,
+        height:350
     },
     palette: {
         primary: green,
@@ -90,12 +94,16 @@ const Dashboard = () => {
     const [jwt, setJwt] = useLocalState("", "jwt");
     const [plants, setPlants] = useState(null);
     const [allPlants, setAllPlants] = useState(null);
+    const [allPlantsOutOfCategory, setAllPlantsOutOfCategory] = useState(null);
     const [categories, setCategories] = useState(null);
     const [selectedPlantName, setSelectedPlantName] = useState('');
     const [selectedPlantId, setSelectedPlantId] = useState('');
+    const classes = useStyles();
+    const [radioValue, setRadioValue] = React.useState('Add');
 
     const [selectedCategory, setSelectedCategory] = useState({
         name: "Wszystkie rośliny",
+        description: "",
         id: 0
     })
 
@@ -105,8 +113,13 @@ const Dashboard = () => {
         },
       });
 
+      const handleRadioChange = (event) => {
+        setRadioValue(event.target.value);
+        setSelectedPlantId('');
+      };
+
         //Do dropzone
-        const classes = useStyles();
+        
     
         /////
 
@@ -134,13 +147,15 @@ const Dashboard = () => {
             if(response.status === 200) return response.json();
         }).then(categoriesData => {
             setCategories(categoriesData);
+            console.log(categoriesData);
         });
     },[]);
 
-    function selectCategory(id,name) {
+    function selectCategory(id,name, description) {
         setSelectedCategory(()=>({
             id: id,
-            name: name
+            name: name,
+            description: description
         }))
         console.log("Wybrana kategoria "+selectedCategory.name);
         console.log("id kategorii "+selectedCategory.id);
@@ -154,6 +169,17 @@ const Dashboard = () => {
             if(response.status === 200) return response.json();
         }).then(plantsData => {
             setPlants(plantsData);
+        });
+        fetch(`http://localhost:8071/plants/outOfCategory/${id}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            },
+            method: "GET"
+        }).then(response => {
+            if(response.status === 200) return response.json();
+        }).then(plantsData => {
+            setAllPlantsOutOfCategory(plantsData);
         });   
     }
 
@@ -166,12 +192,28 @@ const Dashboard = () => {
             },
             method: "POST"
         }).then(response => {
-            if(response.status === 200) selectCategory(selectedCategory.id,selectedCategory.name);
+            if(response.status === 200) selectCategory(selectedCategory.id,selectedCategory.name,selectedCategory.description);
         }); 
+        setSelectedPlantId('');
+    }
+
+    function deletePlantFromCategory(plantId,categoryId) {
+        console.log("id rosliny "+plantId+" | id kategorii"+categoryId);
+        fetch(`http://localhost:8071/categories/deletePlant/${plantId}/${categoryId}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            },
+            method: "POST"
+        }).then(response => {
+            if(response.status === 200) selectCategory(selectedCategory.id,selectedCategory.name,selectedCategory.description);
+        }); 
+        setSelectedPlantId('');
     }
 
     const handleChangeSelectedPlant = (event) => {    
         setSelectedPlantId(event.target.value);
+        console.log(selectedPlantId);
       };
 
     return (
@@ -216,7 +258,7 @@ const Dashboard = () => {
                         </Box>
                         </Button>{"\xa0\xa0\xa0\xa0\xa0"}</React.Fragment>
                     {categories ? categories.map((category, index) =>
-                        <React.Fragment key={index}><Button variant="outlined" color="primary" onClick={() => selectCategory(category.id, category.name)}>
+                        <React.Fragment key={index}><Button variant="outlined" color="primary" onClick={() => selectCategory(category.id, category.name, category.description)}>
                         <Box sx={{ fontFamily: 'Abhaya Libre' }}>
                             {category.name}
                         </Box>
@@ -227,26 +269,41 @@ const Dashboard = () => {
             {/* Dodawanie do kat */}
             <div style={{ margin: "1em", width: "300px" }}>
                 <Paper>
-                    <Typography align="left" style={{padding:16}}>
-                    {"\xa0"}Dodaj
-                    </Typography>
+                    <RadioGroup row aria-label="position" value={radioValue} name="position" defaultValue="top" style={{padding:16}} onChange={handleRadioChange}>
+                        <FormControlLabel value="Add" control={<Radio color="primary" />} label="Dodaj" />
+                        <FormControlLabel value="Delete" control={<Radio color="primary" />} label="Usuń" />
+                    </RadioGroup>
                     <FormControl className={classes.formControl}>
                         <InputLabel>label</InputLabel>
-                        <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
-                            {allPlants ? allPlants.map((plant,index) =>
+                        {radioValue==="Add" ? <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
+                            {allPlantsOutOfCategory ? allPlantsOutOfCategory.map((plant,index) =>
                                 <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
                             ) : <MenuItem value=''>Nie wybrano</MenuItem>}
                             <MenuItem value=''>Nie wybrano</MenuItem>
-                        </Select>
+                        </Select> :
+                        <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
+                            {plants ? plants.map((plant,index) =>
+                                <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
+                            ) : <MenuItem value=''>Nie wybranoo</MenuItem>}
+                            <MenuItem value=''>Nie wybranoo</MenuItem>
+                        </Select>}
                     </FormControl>
                     <Typography align="left" style={{padding:16}}>
-                    {"\xa0"}do kategorii <font color="green">{selectedCategory.name} </font>
+                        {selectedCategory.id===0 ? <><font color="grey">Wybierz kategorię</font></> : 
+                        <>{"\xa0"}{radioValue==="Add" ? <>do</> : <>z</> } kategorii <font color="green">{selectedCategory.name} </font></>}                        
                     </Typography>
-                    {"\xa0\xa0\xa0"}<Button variant="contained" color="primary">
+                    {selectedCategory.id===0 || selectedPlantId==="" ? <>{"\xa0\xa0\xa0"}<Button variant="contained" color="primary" disabled>
                         <Box sx={{ fontFamily: 'Abhaya Libre' } } onClick={() => addPlantToCategory(selectedPlantId,selectedCategory.id)}>
                         Zatwierdź
-                        </Box>
-                    </Button>  <br/> <br/>
+                        </Box> 
+                    </Button> {selectedPlantId==="" ? <>Nie wybrano rosliny</> : <></>} <br/> <br/></> :
+                        <>{"\xa0\xa0\xa0"}<Button variant="contained" color="primary">
+                        {radioValue==="Add" ? <Box sx={{ fontFamily: 'Abhaya Libre' } } onClick={() => addPlantToCategory(selectedPlantId,selectedCategory.id)}>
+                        Zatwierdź
+                        </Box> : <Box sx={{ fontFamily: 'Abhaya Libre' } } onClick={() => deletePlantFromCategory(selectedPlantId,selectedCategory.id)}>
+                        Zatwierdź
+                        </Box> }
+                    </Button>  <br/> <br/></>}
                 </Paper>
             </div>
 
@@ -254,8 +311,11 @@ const Dashboard = () => {
             {/*  */}
 
             <div style={{ margin: "5em" }}>
-                <Typography variant="h6" className={classes.title}>
-                    <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.name}: </Box><br/>
+                <Typography variant="h5" className={classes.title}>
+                    <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.name}</Box>
+                </Typography>
+                <Typography className={classes.title}>
+                    <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.description}</Box><br/>
                 </Typography>
                 <Grid container spacing={2}>
                 {plants ? plants.map((plant, index) =>
@@ -269,7 +329,7 @@ const Dashboard = () => {
                             component='img'
                             />
                             <CardContent>
-                                <Typography gutterBottom variant="h5" component="h2">
+                                <Typography gutterBottom variant="h6" component="h2">
                                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>
                                         {plant.name}
                                     </Box>
