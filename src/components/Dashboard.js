@@ -22,6 +22,7 @@ import Container from "@material-ui/core/Container";
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Pagination from '@material-ui/lab/Pagination';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -100,6 +101,8 @@ const Dashboard = () => {
     const [selectedPlantId, setSelectedPlantId] = useState('');
     const classes = useStyles();
     const [radioValue, setRadioValue] = React.useState('Add');
+    const [pagePlant, setPagePlant] = React.useState(null);
+    const [numberOfPages,setNumberOfPages] = useState(0);
 
     const [selectedCategory, setSelectedCategory] = useState({
         name: "Wszystkie rośliny",
@@ -118,13 +121,8 @@ const Dashboard = () => {
         setSelectedPlantId('');
       };
 
-        //Do dropzone
-        
-    
-        /////
-
     useEffect(() => {
-        fetch("http://localhost:8071/plants", {
+        fetch("http://localhost:8071/plants?sort=name", {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -135,6 +133,8 @@ const Dashboard = () => {
         }).then(plantsData => {
             setPlants(plantsData);
             setAllPlants(plantsData);
+            setPagePlant(plantsData.slice(0,12));
+            setNumberOfPages(Math.ceil(plantsData.length/12));
         });
 
         fetch("http://localhost:8071/categories", {
@@ -169,6 +169,8 @@ const Dashboard = () => {
             if(response.status === 200) return response.json();
         }).then(plantsData => {
             setPlants(plantsData);
+            setPagePlant(plantsData.slice(0,12));
+            setNumberOfPages(Math.ceil(plantsData.length/12));
         });
         fetch(`http://localhost:8071/plants/outOfCategory/${id}`, {
             headers: {
@@ -214,6 +216,11 @@ const Dashboard = () => {
     const handleChangeSelectedPlant = (event) => {    
         setSelectedPlantId(event.target.value);
         console.log(selectedPlantId);
+      };
+
+    const handleNextPage = (event,value) => {    
+        console.log(value*3);
+        setPagePlant(plants.slice((value-1)*12,value*12));
       };
 
     return (
@@ -309,8 +316,10 @@ const Dashboard = () => {
 
             
             {/*  */}
-
+        
             <div style={{ margin: "5em" }}>
+                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} />
+                <br/>
                 <Typography variant="h5" className={classes.title}>
                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.name}</Box>
                 </Typography>
@@ -318,7 +327,7 @@ const Dashboard = () => {
                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.description}</Box><br/>
                 </Typography>
                 <Grid container spacing={2}>
-                {plants ? plants.map((plant, index) =>
+                {pagePlant ? pagePlant.map((plant, index) =>
                 <Grid key={index} container item sm={3} spacing={0}>
                     <Card className={classes.root}>
                         <CardActionArea onClick={() => window.location.href = `/plant/${plant.id}`}>
@@ -344,7 +353,10 @@ const Dashboard = () => {
                     </Card>
                 </Grid>
                 ) : <></>}
-                </Grid>    
+                </Grid>
+                <br/>
+                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} />
+                
             </div> 
             <br/><br/><br/><br/><br/><br/>
         </>

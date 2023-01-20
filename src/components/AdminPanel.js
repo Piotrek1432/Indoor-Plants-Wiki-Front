@@ -50,6 +50,9 @@ const AdminPanel = () => {
             method: "PATCH"
         }).then(response => {
             if(response.status === 200)window.location.href = "/adminPanel"
+            else return Promise.reject("Błąd dodawania - nie można dodać kolejnej rośliny o takiej nazwie");
+        }).catch((message) => {
+            alert(message);
         });
     }
 

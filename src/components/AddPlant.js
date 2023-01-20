@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
         margin:"auto",
         display:"block",
         marginBottom:theme.spacing(2),
-        objectFit: "contain"
+        objectFit: "cover"
     },
     wrapper: {
         margin: theme.spacing(1),

@@ -105,7 +105,7 @@ const AddCategory = () => {
             <form className='classes.root' onSubmit={handleSubmit}>
                 <div style={{ margin: "10em" , marginTop: "3em", marginRight: "70em"}}>
                     <TextField style={{ textTransform: 'uppercase'}} required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleName}/><br/><br/>
-                    <TextField name="description" multiline minRows={3} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleDesc} /><br/><br/>
+                    <TextField inputProps={{ maxLength: 255 }} name="description" multiline minRows={3} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleDesc} /><br/><br/>
                     <Button type="submit" variant="outlined">Dodaj kategorię</Button>
                 </div>
             </form>

@@ -9,6 +9,7 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardMedia from '@material-ui/core/CardMedia';
 import Grid from '@material-ui/core/Grid';
 import CardContent from '@material-ui/core/CardContent';
+import Pagination from '@material-ui/lab/Pagination';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -32,6 +33,8 @@ const Homepage = () => {
     const classes = useStyles();
     const [plants, setPlants] = useState(null);
     const [categories, setCategories] = useState(null);
+    const [pagePlant, setPagePlant] = React.useState(null);
+    const [numberOfPages,setNumberOfPages] = useState(0);
 
     function goToLoginPage() {
         window.location.href = "login";
@@ -42,7 +45,7 @@ const Homepage = () => {
     }
 
     useEffect(() => {
-        fetch("http://localhost:8071/plants", {
+        fetch("http://localhost:8071/plants?sort=name", {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -52,6 +55,8 @@ const Homepage = () => {
         }).then(plantsData => {
             setPlants(plantsData);
             console.log(plantsData);
+            setPagePlant(plantsData.slice(0,12));
+            setNumberOfPages(Math.ceil(plantsData.length/12));
         });
 
         fetch("http://localhost:8071/categories", {
@@ -77,9 +82,15 @@ const Homepage = () => {
             if(response.status === 200) return response.json();
         }).then(plantsData => {
             setPlants(plantsData);
-            console.log(plantsData);
+            setPagePlant(plantsData.slice(0,12));
+            setNumberOfPages(Math.ceil(plantsData.length/12));
         });
     }
+
+    const handleNextPage = (event,value) => {    
+        console.log(value*3);
+        setPagePlant(plants.slice((value-1)*12,value*12));
+      };
 
     return (
         <>
@@ -118,8 +129,10 @@ const Homepage = () => {
 
 
             <div style={{ margin: "5em" }}>
+                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} />
+                <br/>
                 <Grid container spacing={2}>
-                {plants ? plants.map((plant,index) =>
+                {pagePlant ? pagePlant.map((plant,index) =>
                 <Grid key={index} container item sm={3} spacing={0}>
                     <Card className={classes.root}>
                         <CardActionArea onClick={() => window.location.href = `/plant/${plant.id}`}>
@@ -145,8 +158,14 @@ const Homepage = () => {
                     </Card>
                 </Grid>
                 ) : <></>}
-                </Grid>    
+                </Grid>   
+                <br/>
+                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} /> 
             </div> 
+            <footer style={{textAlign: "center", padding: "2px", backgroundColor: "DarkGreen", color: "white"}}>
+                <p>Autor: Piotr Jankowski</p>
+                <p>Kontakt: <a style={{color: "yellow"}} href="mailto:piotrjankowski@example.com">piotrjankowski@example.com</a></p>
+            </footer> 
         </>
     );
 };

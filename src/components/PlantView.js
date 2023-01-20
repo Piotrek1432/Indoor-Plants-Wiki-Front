@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useLocalState } from '../util/UseLocalStorage';
-import { Box, CssBaseline, Paper, Toolbar, Typography } from '@material-ui/core';
+import { Box, CssBaseline, Paper, Toolbar, Typography,TextField } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import { createTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import Container from "@material-ui/core/Container";
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme)=>({
     title: {
@@ -33,6 +34,8 @@ const PlantView = () => {
     const [plant, setPlant] = useState(null);
     const [signaturesModel, setSignaturesModel] = useState(null);
     const classes = useStyles();
+    const [comment, setComment] = useState("");
+    const [comments, setComments] = useState(null);
 
     useEffect(() => {
         fetch(`http://localhost:8071/plants/${plantId}`, {
@@ -58,7 +61,58 @@ const PlantView = () => {
             setSignaturesModel(signaturesModel);
             console.log(signaturesModel);
         });
+        fetch(`http://localhost:8071/comment/readAllComments/${plantId}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            },
+            method: "GET"
+        }).then(response => {
+            if(response.status === 200) return response.json();
+        }).then(plantComments => {
+            setComments(plantComments);
+            console.log(plantComments);
+        });
     }, [])
+
+    function goToLoginPage() {
+        window.location = "http://localhost:3000/login";
+    }
+
+    function goToRegistrationPage() {
+        window.location = "http://localhost:3000/register";
+    }
+    const handleChange = (e) => {
+        setComment(e.target.value);
+    }
+
+    const handleSubmit = (event,value) => { 
+        const reqBody = {
+            comment: comment
+        };   
+        fetch(`http://localhost:8071/comment/addNewComment/${plantId}`, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            },
+            method: "POST",
+            body: JSON.stringify(reqBody)
+        }).then(response => {
+            if(response.status === 200) {
+                fetch(`http://localhost:8071/comment/readAllComments/${plantId}`, {
+                    headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${jwt}`
+                    },
+                    method: "GET"
+                }).then(response => {
+                if(response.status === 200) return response.json();
+                }).then(plantComments => {
+                    setComments(plantComments);
+                });
+            }
+        }); 
+      };
 
     return (
         <>
@@ -68,15 +122,18 @@ const PlantView = () => {
                     <Typography variant="h6" className={classes.title} component={'span'}>
                         <Box sx={{ fontFamily: 'Abhaya Libre' }}>Baza roślin domowych</Box>
                     </Typography>
-                    <Typography component={'span'}>
+                    {jwt!=="" ? <Typography component={'span'}>
                         <Button color="inherit" onClick={() => {setJwt("");
                         window.location.href = "/"
                     }}>Wyloguj</Button>
-                    </Typography>
+                    </Typography> : <Typography component={'span'}>
+                        <Button sx={{ fontFamily: 'Abhaya Libre' }} color="inherit" onClick={() => goToLoginPage()}>Zaloguj</Button>
+                        <Button color="inherit" onClick={() => goToRegistrationPage()}>Zarejestruj</Button>
+                    </Typography> }
                 </Toolbar>
             </AppBar>
             {plant ? (
-                <Container maxWidth="md"><Paper style={{ margin: "4em" }}>
+                <><Container maxWidth="md"><Paper style={{ margin: "4em" }}>
                     <Typography variant="h4" align="center" style={{padding:8, fontFamily: 'Abhaya Libre', }}>
                         {plant.name} {jwt ?(<Button type="submit" variant="outlined" onClick={() => window.location.href = `/modifyPlant/${plant.id}`}>Zmodyfikuj wpis</Button>) : (<></>)}
                     </Typography>
@@ -87,7 +144,7 @@ const PlantView = () => {
                         <tbody>
                             <tr>
                                 <td>
-                                    <img style={{ margin: "1em", marginLeft: "3em"}} height={250} width={250} src={plant.imagePath} alt='Brak zdjęcia'/>
+                                    <img style={{ margin: "1em", marginLeft: "3em", objectFit: "cover" }} height={250} width={250} src={plant.imagePath} alt='Brak zdjęcia'/>
                                 </td>
                                 <td>
                                     <Typography variant="h5" align="center" style={{padding:10, fontFamily: 'Abhaya Libre'}}>
@@ -101,7 +158,7 @@ const PlantView = () => {
                             <tr>
                                 <td>
                                     <Typography variant="h5" align="center" style={{padding:10, fontFamily: 'Abhaya Libre'}}>
-                                        Pozytywne cechy
+                                        Zalety rośliny
                                     </Typography>
                                     <Typography align="justify" style={{padding:16, fontFamily: 'Abhaya Libre'}}>
                                         {plant.positiveQualities}
@@ -127,7 +184,7 @@ const PlantView = () => {
                                 </td>
                                 <td>
                                     <Typography variant="h5" align="center" style={{padding:10, fontFamily: 'Abhaya Libre'}}>
-                                        Nawożenie
+                                        Rodzaj podłoża i nawożenie
                                     </Typography>
                                     <Typography align="justify" style={{padding:16, fontFamily: 'Abhaya Libre'}}>
                                         {plant.fertilization}
@@ -147,6 +204,35 @@ const PlantView = () => {
                         </tbody>
                     </table>
                 </Paper></Container>
+                {jwt ? <Container maxWidth="md">
+                    <Paper style={{ margin: "4em" }}>
+                        <Typography variant="h6" align="left" style={{padding:8, fontFamily: 'Abhaya Libre', }}>
+                            Dodaj komentarz:
+                        </Typography>
+                        <TextField inputProps={{ maxLength: 255 }} name="newComment" multiline minRows={3} fullWidth variant="filled" value={comment} label="Wpisz komentarz" onChange={handleChange} /><br/><br/>
+                        {comment==="" ? <Button style={{padding:1, fontFamily: 'Abhaya Libre', align: "right"}} variant="outlined" disabled>Wyślij</Button> :
+                        <Button onClick={handleSubmit} style={{padding:1, fontFamily: 'Abhaya Libre', align: "right"}} variant="outlined">Wyślij</Button>}
+                    </Paper>
+                </Container> : <></>}
+                <Container maxWidth="md">
+                    <Paper style={{ margin: "4em" }}>
+                        <Typography variant="h6" align="left" style={{padding:8, fontFamily: 'Abhaya Libre', }}>
+                            Komentarze:
+                        </Typography>
+                        {comments ? comments.map((singleComment,index) =>
+                            <>
+                            <Typography key={index} align="left" style={{padding:1, fontSize:"14px", fontFamily: 'Abhaya Libre', }}>
+                            Autor: {singleComment.author.username}{"\xa0\xa0\xa0\xa0\xa0"} Data dodania: {singleComment.createdOn.slice(0, -7)}
+                            </Typography>
+                            <Typography key={index} align="left" style={{padding:1, fontSize:"16px", fontFamily: 'Abhaya Libre' }}>
+                            {singleComment.content}
+                            </Typography>
+                            <Divider /><br/>
+                            </>
+                        ): <></>}
+                    </Paper>
+                </Container>
+                </>
             ) : (
                 <></>
             )}
