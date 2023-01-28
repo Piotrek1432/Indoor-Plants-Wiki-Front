@@ -3,8 +3,7 @@ import { useLocalState } from '../util/UseLocalStorage';
 import { Box, CssBaseline, Paper, Toolbar, Typography,TextField } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
-import { createTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
+import { makeStyles  } from '@material-ui/core/styles';
 import Container from "@material-ui/core/Container";
 import Divider from '@material-ui/core/Divider';
 
@@ -38,7 +37,7 @@ const PlantView = () => {
     const [comments, setComments] = useState(null);
 
     useEffect(() => {
-        fetch(`http://localhost:8071/plants/${plantId}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/plants/${plantId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -49,7 +48,7 @@ const PlantView = () => {
         }).then(plantData => {
             setPlant(plantData);
         });
-        fetch(`http://localhost:8071/plants/readSignatures/${plantId}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/plants/readSignatures/${plantId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -61,7 +60,7 @@ const PlantView = () => {
             setSignaturesModel(signaturesModel);
             console.log(signaturesModel);
         });
-        fetch(`http://localhost:8071/comment/readAllComments/${plantId}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/comment/readAllComments/${plantId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -90,7 +89,7 @@ const PlantView = () => {
         const reqBody = {
             comment: comment
         };   
-        fetch(`http://localhost:8071/comment/addNewComment/${plantId}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/comment/addNewComment/${plantId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -99,7 +98,7 @@ const PlantView = () => {
             body: JSON.stringify(reqBody)
         }).then(response => {
             if(response.status === 200) {
-                fetch(`http://localhost:8071/comment/readAllComments/${plantId}`, {
+                fetch(process.env.REACT_APP_SPRING_URL+`/comment/readAllComments/${plantId}`, {
                     headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${jwt}`

@@ -1,14 +1,11 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useLocalState } from '../util/UseLocalStorage';
-import axios from 'axios';
 import AppBar from '@material-ui/core/AppBar';
 import Grid from '@material-ui/core/Grid';
-import { useDropzone } from 'react-dropzone';
 import { createTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { green } from '@material-ui/core/colors';
 import Button from '@material-ui/core/Button';
-import clsx from 'clsx';
 import { Box, CssBaseline, Paper, Toolbar, Typography } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
@@ -18,7 +15,6 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import Container from "@material-ui/core/Container";
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -122,7 +118,7 @@ const Dashboard = () => {
       };
 
     useEffect(() => {
-        fetch("http://localhost:8071/plants?sort=name", {
+        fetch(process.env.REACT_APP_SPRING_URL+"/plants?sort=name", {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -137,7 +133,7 @@ const Dashboard = () => {
             setNumberOfPages(Math.ceil(plantsData.length/12));
         });
 
-        fetch("http://localhost:8071/categories", {
+        fetch(process.env.REACT_APP_SPRING_URL+"/categories", {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -159,7 +155,7 @@ const Dashboard = () => {
         }))
         console.log("Wybrana kategoria "+selectedCategory.name);
         console.log("id kategorii "+selectedCategory.id);
-        fetch(`http://localhost:8071/plants/category/${id}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/plants/category/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -172,7 +168,7 @@ const Dashboard = () => {
             setPagePlant(plantsData.slice(0,12));
             setNumberOfPages(Math.ceil(plantsData.length/12));
         });
-        fetch(`http://localhost:8071/plants/outOfCategory/${id}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/plants/outOfCategory/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -187,7 +183,7 @@ const Dashboard = () => {
 
     function addPlantToCategory(plantId,categoryId) {
         console.log("id rosliny "+plantId+" | id kategorii"+categoryId);
-        fetch(`http://localhost:8071/categories/addPlant/${plantId}/${categoryId}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/categories/addPlant/${plantId}/${categoryId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -201,7 +197,7 @@ const Dashboard = () => {
 
     function deletePlantFromCategory(plantId,categoryId) {
         console.log("id rosliny "+plantId+" | id kategorii"+categoryId);
-        fetch(`http://localhost:8071/categories/deletePlant/${plantId}/${categoryId}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/categories/deletePlant/${plantId}/${categoryId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -229,7 +225,7 @@ const Dashboard = () => {
             <AppBar position="static" classes={{root: classes.appBarColor}}>
                 <Toolbar>
                     <Typography variant="h6" className={classes.title} component={'span'}>
-                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Zalogowany uytkownik</Box>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Baza roślin domowych</Box>
                     </Typography>
                     <Typography component={'span'}>
                         <Button color="inherit" onClick={() => {setJwt("");
@@ -259,7 +255,7 @@ const Dashboard = () => {
                     <Typography variant="h6" className={classes.title} component={'span'}>
                         <Box sx={{ fontFamily: 'Abhaya Libre' }}>Kategorie: </Box>
                     </Typography>
-                    <React.Fragment><Button variant="outlined" color="primary" onClick={() => window.location.href = "/dashboard"}>
+                    <React.Fragment><Button variant="outlined" color="primary" onClick={() => window.location.href = "/loggedInUser"}>
                         <Box sx={{ fontFamily: 'Abhaya Libre' }}>
                             Wszystkie rośliny
                         </Box>
@@ -281,19 +277,22 @@ const Dashboard = () => {
                         <FormControlLabel value="Delete" control={<Radio color="primary" />} label="Usuń" />
                     </RadioGroup>
                     <FormControl className={classes.formControl}>
-                        <InputLabel>label</InputLabel>
-                        {radioValue==="Add" ? <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
-                            {allPlantsOutOfCategory ? allPlantsOutOfCategory.map((plant,index) =>
-                                <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
-                            ) : <MenuItem value=''>Nie wybrano</MenuItem>}
-                            <MenuItem value=''>Nie wybrano</MenuItem>
-                        </Select> :
-                        <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
-                            {plants ? plants.map((plant,index) =>
-                                <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
-                            ) : <MenuItem value=''>Nie wybranoo</MenuItem>}
-                            <MenuItem value=''>Nie wybranoo</MenuItem>
-                        </Select>}
+                        <InputLabel>roślina</InputLabel>
+                        { radioValue==="Add" ? 
+                            <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
+                                {allPlantsOutOfCategory ? allPlantsOutOfCategory.map((plant,index) =>
+                                    <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
+                                ) : <></>}
+                                <MenuItem value=''>Nie wybrano</MenuItem>
+                            </Select> 
+                            :
+                            <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
+                                {plants ? plants.map((plant,index) =>
+                                    <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
+                                ) : <></>}
+                                <MenuItem value=''>Nie wybranoo</MenuItem>
+                            </Select>
+                        }
                     </FormControl>
                     <Typography align="left" style={{padding:16}}>
                         {selectedCategory.id===0 ? <><font color="grey">Wybierz kategorię</font></> : 
@@ -331,12 +330,12 @@ const Dashboard = () => {
                 <Grid key={index} container item sm={3} spacing={0}>
                     <Card className={classes.root}>
                         <CardActionArea onClick={() => window.location.href = `/plant/${plant.id}`}>
-                            <CardMedia 
+                        {plant.imagePath!=='' ? <CardMedia 
                             className={classes.media}
                             image={plant.imagePath}
                             title="plant image"
                             component='img'
-                            />
+                            /> : <CardMedia className={classes.media} image={process.env.REACT_APP_SPRING_URL+"/plants/test/default.jpg"} title="plant image" component='img'/> }
                             <CardContent>
                                 <Typography gutterBottom variant="h6" component="h2">
                                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>

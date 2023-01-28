@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useState } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import { Box, CssBaseline, TextField, Toolbar, Typography } from '@material-ui/core';
@@ -12,11 +12,7 @@ import Divider from '@material-ui/core/Divider';
 import { green } from '@material-ui/core/colors';
 import { useDropzone } from 'react-dropzone';
 import RootRef from '@material-ui/core/RootRef';
-import Fab from '@material-ui/core/Fab';
-import CloudUpload from '@material-ui/icons/CloudUpload';
 import clsx from 'clsx';
-import { LinearProgress } from '@material-ui/core';
-import CheckIcon from '@material-ui/icons/Check';
 import axios from 'axios';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
@@ -111,7 +107,9 @@ const AddPlant = () => {
         setPreview(previewUrl);
     },[]);
 
-    const {getRootProps,getInputProps} = useDropzone({multiple:false,onDrop});
+    const {getRootProps,getInputProps} = useDropzone({multiple:false,onDrop,accept: {
+        'image/png': ['.png','.jpg','.jpeg'],
+      }});
 
     const {ref,...rootProps} = getRootProps()
 
@@ -152,7 +150,7 @@ const AddPlant = () => {
             setLoading(true)
             const formData = new FormData();
             formData.append("file",file)
-            const API_URL = `http://localhost:8071/wiki/addImage/${inputs.name}`
+            const API_URL = process.env.REACT_APP_SPRING_URL+`/wiki/addImage/${inputs.name}`
             if(file){
                 const response = await axios.put(API_URL,formData,config,{
                     onUploadProgress:(ProgressEvent)=>{
@@ -164,10 +162,10 @@ const AddPlant = () => {
                     setLoading(false);
                     setSuccess(true);
                     if(response.data.fileDownloadUri !== "")inputs.imageUri = response.data.fileDownloadUri;
-                    else inputs.imageUri = "http://localhost:8071/plants/test/default.jpg";
+                    else inputs.imageUri = process.env.REACT_APP_SPRING_URL+"/plants/test/default.jpg";
                     console.log(inputs);
                     console.log(response.data.fileDownloadUri);
-                    fetch("http://localhost:8071/wiki/createNewPlant", {
+                    fetch(process.env.REACT_APP_SPRING_URL+"/wiki/createNewPlant", {
                         method: "POST",
                         headers: {
                             'Content-Type': "application/json",
@@ -179,7 +177,7 @@ const AddPlant = () => {
                     });
                 });
             }else{
-                fetch("http://localhost:8071/wiki/createNewPlant", {
+                fetch(process.env.REACT_APP_SPRING_URL+"/wiki/createNewPlant", {
                         method: "POST",
                         headers: {
                             'Content-Type': "application/json",
@@ -198,12 +196,12 @@ const AddPlant = () => {
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
-        window.location.href= "dashboard"
+        window.location.href= "loggedInUser"
       };
 
       const handleCloseBadDialog = () => {
         setOpenBadDialog(false);
-        window.location.href= "dashboard"
+        window.location.href= "loggedInUser"
       };
 
     return (
@@ -225,7 +223,7 @@ const AddPlant = () => {
 
             <form className='classes.root'>
                 <div style={{ margin: "10em" , marginTop: "3em"}}>
-                    <TextField required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleChangeName}/><br/><br/>
+                    <TextField inputProps={{ maxLength: 25 }} required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleChangeName}/><br/><br/>
                     {/* adding image */}
                     <Container maxWidth="xl">
                     <Paper elevation={10} >
@@ -240,7 +238,9 @@ const AddPlant = () => {
                             <Grid item xs={6} style={{padding:16}}>
                                 <RootRef rootRef={ref}>
                                     <Paper {...rootProps} elevation={0} className={classes.dropzoneContainer} >
-                                    <p>Upuść zdjęcie które chcesz dodać</p>
+                                    <p>Upuść zdjęcie które chcesz dodać<br/>
+                                        Obsługiwane rozszerzenia to .jpg, .jpeg, .png
+                                    </p>
                                     </Paper>
                                 </RootRef>
                             </Grid>
@@ -253,7 +253,7 @@ const AddPlant = () => {
                                     onLoad={()=>URL.revokeObjectURL(preview)} 
                                     className={classes.preview}
                                     src={preview || "https://via.placeholder.com/250"}
-                                    alt='some value'/>
+                                    alt='Nieprawidłowy typ pliku. Akceptowane rozszerzenie to .jpg, .jpeg i .png'/>
                                 <Divider />
                                 {file && (<>
                                     <Grid container style={{marginTop:16}} alignItems="center">
@@ -269,10 +269,10 @@ const AddPlant = () => {
                     {/* ------------ */}
                     <br/><br/><TextField inputProps={{ maxLength: 600 }} name="description" multiline minRows={4} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleChange} />
                     <br/><br/><TextField inputProps={{ maxLength: 300 }} name="positiveQualities" multiline minRows={3} fullWidth variant="filled" value={inputs.positiveQualities} label="Pozytywne cechy" onChange={handleChange} />
-                    <br/><br/><TextField inputProps={{ maxLength: 300 }} name="insolation" multiline minRows={3} fullWidth variant="filled" value={inputs.insolation} label="Informacje o wymaganym nasłonecnieniu" onChange={handleChange} />
+                    <br/><br/><TextField inputProps={{ maxLength: 300 }} name="insolation" multiline minRows={3} fullWidth variant="filled" value={inputs.insolation} label="Informacje o wymaganym nasłonecznieniu" onChange={handleChange} />
                     <br/><br/><TextField inputProps={{ maxLength: 300 }} name="watering" multiline minRows={3} fullWidth variant="filled" value={inputs.watering} label="Częstotliwość nawadniania" onChange={handleChange} />
                     <br/><br/><TextField inputProps={{ maxLength: 500 }} name="fertilization" multiline minRows={4} fullWidth variant="filled" value={inputs.fertilization} label="Informacje o nawożeniu i podłożu" onChange={handleChange} />
-                    <br/><br/><TextField inputProps={{ maxLength: 500 }} name="badSignals" multiline minRows={4} fullWidth variant="filled" value={inputs.badSignals} label="Złe sygnały wymagające szczególnej uwagi" onChange={handleChange} />
+                    <br/><br/><TextField inputProps={{ maxLength: 500 }} name="badSignals" multiline minRows={4} fullWidth variant="filled" value={inputs.badSignals} label="Podatności i sygnały wymagające szczególnej uwagi" onChange={handleChange} />
                     <br/><br/>
                     {inputs.name && (<Button onClick={handleSubmit} variant="outlined">Wyślij do zatwierdzenia</Button> )}
                     {!inputs.name && (<><Button onClick={handleSubmit} variant="outlined" disabled>Wyślij do zatwierdzenia</Button> <font color="red">Wymagane jest podanie nazwy rośliny </font></>)}

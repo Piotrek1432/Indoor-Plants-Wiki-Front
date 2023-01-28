@@ -36,6 +36,12 @@ const Homepage = () => {
     const [pagePlant, setPagePlant] = React.useState(null);
     const [numberOfPages,setNumberOfPages] = useState(0);
 
+    const [selectedCategory, setSelectedCategory] = useState({
+        name: "Wszystkie rośliny",
+        description: "",
+        id: 0
+    })
+
     function goToLoginPage() {
         window.location.href = "login";
     }
@@ -45,7 +51,8 @@ const Homepage = () => {
     }
 
     useEffect(() => {
-        fetch("http://localhost:8071/plants?sort=name", {
+        console.log(process.env);
+        fetch(process.env.REACT_APP_SPRING_URL+"/plants?sort=name", {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -59,7 +66,7 @@ const Homepage = () => {
             setNumberOfPages(Math.ceil(plantsData.length/12));
         });
 
-        fetch("http://localhost:8071/categories", {
+        fetch(process.env.REACT_APP_SPRING_URL+"/categories", {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -71,9 +78,14 @@ const Homepage = () => {
         });
     },[]);
 
-    function selectCategory(id) {
+    function selectCategory(id,name, description) {
+        setSelectedCategory(()=>({
+            id: id,
+            name: name,
+            description: description
+        }))
         console.log("Wybrana kategoria "+id);
-        fetch(`http://localhost:8071/plants/category/${id}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/plants/category/${id}`, {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -98,7 +110,7 @@ const Homepage = () => {
             <AppBar position="static" classes={{root: classes.appBarColor}}>
                 <Toolbar>
                     <Typography variant="h6" className={classes.title} component={'span'}>
-                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Strona główna</Box>
+                        <Box sx={{ fontFamily: 'Abhaya Libre' }}>Baza roślin domowych</Box>
                     </Typography>
                     <Typography component={'span'}>
                         <Button sx={{ fontFamily: 'Abhaya Libre' }} color="inherit" onClick={() => goToLoginPage()}>Zaloguj</Button>
@@ -119,7 +131,7 @@ const Homepage = () => {
                         </Box>
                         </Button>{"\xa0\xa0\xa0\xa0\xa0"}</React.Fragment>
                     {categories ? categories.map((category, index) =>
-                        <React.Fragment key={index}><Button variant="outlined" color="primary" onClick={() => selectCategory(category.id)}>
+                        <React.Fragment key={index}><Button variant="outlined" color="primary" onClick={() => selectCategory(category.id, category.name, category.description)}>
                         <Box sx={{ fontFamily: 'Abhaya Libre' }}>
                             {category.name}
                         </Box>
@@ -131,17 +143,23 @@ const Homepage = () => {
             <div style={{ margin: "5em" }}>
                 <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} />
                 <br/>
+                <Typography variant="h5" className={classes.title}>
+                    <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.name}</Box>
+                </Typography>
+                <Typography className={classes.title}>
+                    <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.description}</Box><br/>
+                </Typography>
                 <Grid container spacing={2}>
                 {pagePlant ? pagePlant.map((plant,index) =>
                 <Grid key={index} container item sm={3} spacing={0}>
                     <Card className={classes.root}>
                         <CardActionArea onClick={() => window.location.href = `/plant/${plant.id}`}>
-                            <CardMedia 
+                            {plant.imagePath!=='' ? <CardMedia 
                             className={classes.media}
                             image={plant.imagePath}
                             title="plant image"
                             component='img'
-                            />
+                            /> : <CardMedia className={classes.media} image={process.env.REACT_APP_SPRING_URL+"/plants/test/default.jpg"} title="plant image" component='img'/> }
                             <CardContent>
                                 <Typography gutterBottom variant="h6" component="h2">
                                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>

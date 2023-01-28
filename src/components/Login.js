@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useLocalState } from '../util/UseLocalStorage';
 import { Box, CssBaseline, TextField, Toolbar, Typography } from '@material-ui/core';
 import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 
 const Login = () => {
@@ -19,7 +16,7 @@ const Login = () => {
             password: password
         };
         
-      fetch('http://localhost:8071/api/auth/login',{
+      fetch(process.env.REACT_APP_SPRING_URL+'/api/auth/login',{
       headers: {
         "Content-Type": "application/json"
       },
@@ -31,10 +28,10 @@ const Login = () => {
             else return Promise.reject("Błędne dane logowania");
         })
         .then(response => {
-            setJwt(response.answer);
+            setJwt(response.jwt);
             console.log(response.role);
             if(response.role==="ROLE_ADMIN") window.location.href= "adminPanel";
-            else window.location.href= "dashboard";
+            else window.location.href= "loggedInUser";
         })
         .catch((message) => {
             alert(message);

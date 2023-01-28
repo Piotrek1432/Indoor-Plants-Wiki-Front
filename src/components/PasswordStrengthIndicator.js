@@ -15,7 +15,7 @@ const PasswordStrengthIndicator = ({validity: {minChar, number, specialChar}}) =
 
 const PasswordStrengthIndicatorItem = ({isValid, text}) =>{
     const highlightClass = isValid ? "text-success" : isValid !== null ? "text-danger" : ""
-    return <li className={highlightClass}>{text}</li>
+    return <li className={highlightClass}>{text}{highlightClass==="text-success" ? <>&#10004;&#65039;</> : <></>}</li>
 }
 
 export default PasswordStrengthIndicator

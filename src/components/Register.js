@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { useLocalState } from '../util/UseLocalStorage';
 import PasswordStrengthIndicator from './PasswordStrengthIndicator';
-import { Box, CssBaseline, TextField, Toolbar, Typography } from '@material-ui/core';
+import { Box, Typography } from '@material-ui/core';
 import Input from '@material-ui/core/Input';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
 
 const isNumberRegx = /\d/;
@@ -23,6 +21,7 @@ const Register = () => {
         specialChar: null
     });
     const [showPassword, setShowPassword] = useState(false);
+    const {REACT_APP_SPRING_URL} = process.env;
 
     const onPasswordChange = password =>{
         setPassword(password);
@@ -43,7 +42,7 @@ const Register = () => {
             password: password
         };
         
-      fetch('http://localhost:8071/api/auth/register',{
+      fetch(process.env.REACT_APP_SPRING_URL+'/api/auth/register',{
       headers: {
         "Content-Type": "application/json"
       },
@@ -52,11 +51,12 @@ const Register = () => {
       })
         .then((response) => {
             if (response.status === 200) return response.json();
-            else return Promise.reject("Ten login jest już zajęty");
+            else if (response.status === 400) return Promise.reject("Ten login jest już zajęty");
+            else return Promise.reject("Błąd lub niedostępność serwera");
         })
         .then(response => {
-            setJwt(response.answer);
-            window.location.href= "dashboard";
+            setJwt(response.jwt);
+            window.location.href= "loggedInUser";
         })
         .catch((message) => {
             alert(message);
@@ -73,7 +73,7 @@ const Register = () => {
                         <Box sx={{ fontFamily: 'Abhaya Libre' }}>Rejestracja</Box>
             </Typography>
             <div style={{ margin: "1em" }}>
-                <label htmlFor="password">Nazwa użutkownika</label><br/>
+                <label htmlFor="password">Login/Nazwa użytkownika</label><br/>
                 <Input required type="login" id="username" value={username} onChange={(e) => setUsername(e.target.value)}/>
             </div>
             <div style={{ margin: "1em" }}>

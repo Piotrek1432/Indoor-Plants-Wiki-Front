@@ -5,30 +5,18 @@ import { Box, CssBaseline, TextField, Toolbar, Typography } from '@material-ui/c
 import Button from '@material-ui/core/Button';
 import {makeStyles} from '@material-ui/core/styles';
 import { useLocalState } from '../util/UseLocalStorage';
-import Container from "@material-ui/core/Container";
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
-import { green } from '@material-ui/core/colors';
-import { useDropzone } from 'react-dropzone';
-import RootRef from '@material-ui/core/RootRef';
-import Fab from '@material-ui/core/Fab';
-import CloudUpload from '@material-ui/icons/CloudUpload';
-import clsx from 'clsx';
-import { LinearProgress } from '@material-ui/core';
-import CheckIcon from '@material-ui/icons/Check';
-import axios from 'axios';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Slide from '@material-ui/core/Slide';
 
 const useStyles = makeStyles((theme) => ({
     title: {
       flexGrow: 1,
+    },
+    appBarColor: {
+        backgroundColor: "darkgreen"
     },
 }));
 
@@ -61,7 +49,7 @@ const AddCategory = () => {
         event.preventDefault();
         event.stopPropagation();
         console.log( 'Nazwa:', inputs.name, 'opis: ', inputs.description); 
-        fetch("http://localhost:8071/categories", {
+        fetch(process.env.REACT_APP_SPRING_URL+"/categories", {
                         method: "POST",
                         headers: {
                             'Content-Type': "application/json",
@@ -77,12 +65,12 @@ const AddCategory = () => {
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
-        window.location.href= "dashboard"
+        window.location.href= "loggedInUser"
       };
 
     const handleCloseBadDialog = () => {
         setOpenBadDialog(false);
-        window.location.href= "dashboard"
+        window.location.href= "loggedInUser"
       };
 
     return (
@@ -104,9 +92,10 @@ const AddCategory = () => {
 
             <form className='classes.root' onSubmit={handleSubmit}>
                 <div style={{ margin: "10em" , marginTop: "3em", marginRight: "70em"}}>
-                    <TextField style={{ textTransform: 'uppercase'}} required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleName}/><br/><br/>
+                    <TextField inputProps={{ maxLength: 25 }} style={{ textTransform: 'uppercase'}} required name="name" value={inputs.name} label="Nazwa rośliny" onChange={handleName}/><br/><br/>
                     <TextField inputProps={{ maxLength: 255 }} name="description" multiline minRows={3} fullWidth variant="filled" value={inputs.description} label="Krótki opis" onChange={handleDesc} /><br/><br/>
-                    <Button type="submit" variant="outlined">Dodaj kategorię</Button>
+                    {inputs.name && (<Button onClick={handleSubmit}  variant="outlined">Dodaj kategorię</Button> )}
+                    {!inputs.name && (<><Button  variant="outlined" disabled>Dodaj kategorię</Button> <font color="red">Wymagane jest podanie nazwy kategorii </font></>)}
                 </div>
             </form>
 

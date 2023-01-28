@@ -1,10 +1,7 @@
 import './App.css';
 import AddPlant from './components/AddPlant';
 import ModifyPlant from './components/ModifyPlant';
-import {Plants} from "./components/Plants";
 import AddCategory from "./components/AddCategory"
-import { Categories } from './components/Categories';
-import { useEffect, useState } from 'react';
 import { useLocalState } from './util/UseLocalStorage';
 import { Route, Routes } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
@@ -21,12 +18,12 @@ function App() {
 
   return (
     <Routes>
-      <Route path="dashboard" element={ 
+      <Route path="/loggedInUser" element={ 
         <PrivateRoute>
           <Dashboard/> 
         </PrivateRoute>
       }/>
-      <Route path="adminPanel" element={ 
+      <Route path="/adminPanel" element={ 
         <PrivateRoute>
           <AdminPanel/> 
         </PrivateRoute>
@@ -46,9 +43,9 @@ function App() {
           <AddCategory/>
         </PrivateRoute>
       }/>
-      <Route path="login" element={ <Login/> }/>
+      <Route path="/login" element={ <Login/> }/>
       <Route path="/plant/:id" element={<PlantView/>}/>
-      <Route path="register" element={ <Register/> }/>
+      <Route path="/register" element={ <Register/> }/>
       <Route path="/" element={<Homepage/>}/>
     </Routes>
   );

@@ -6,10 +6,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import { Box, CssBaseline, Toolbar, Typography } from '@material-ui/core';
 import AppBar from '@material-ui/core/AppBar';
 
@@ -26,7 +24,7 @@ const AdminPanel = () => {
     const [changesState, setChangesState] = useState({changes: []})
 
     useEffect(() => {
-        fetch("http://localhost:8071/administration/getAllPlantChangesToAccept", {
+        fetch(process.env.REACT_APP_SPRING_URL+"/administration/getAllPlantChangesToAccept", {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -42,7 +40,7 @@ const AdminPanel = () => {
 
     function handleSubmit(id) {
         console.log("do zatwierdzenia "+id);
-        fetch(`http://localhost:8071/administration/acceptNewPlant/${id}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/administration/acceptNewPlant/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -58,7 +56,7 @@ const AdminPanel = () => {
 
     function handleReject(id) {
         console.log("do odrzucenia "+id);
-        fetch(`http://localhost:8071/administration/rejectNewPlant/${id}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/administration/rejectNewPlant/${id}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -89,6 +87,11 @@ const AdminPanel = () => {
                     <TableRow>
                         <TableCell>Nazwa</TableCell>
                         <TableCell>Opis</TableCell>
+                        <TableCell>Pozytywne cechy</TableCell>
+                        <TableCell>Nasłonecznienie</TableCell>
+                        <TableCell>Nawadnianie</TableCell>
+                        <TableCell>Nawożenie i podłoże</TableCell>
+                        <TableCell>Podatności</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>

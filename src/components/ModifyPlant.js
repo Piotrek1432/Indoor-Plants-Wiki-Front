@@ -117,7 +117,7 @@ const ModifyPlant = () => {
     });
 
     useEffect(() => {
-        fetch(`http://localhost:8071/plants/${plantId}`, {
+        fetch(process.env.REACT_APP_SPRING_URL+`/plants/${plantId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${jwt}`
@@ -175,7 +175,7 @@ const ModifyPlant = () => {
             setLoading(true)
             const formData = new FormData();
             formData.append("file",file)
-            const API_URL = `http://localhost:8071/wiki/addImage/${inputs.name}`
+            const API_URL = process.env.REACT_APP_SPRING_URL+`/wiki/addImage/${inputs.name}`
             if(file){
                 const response = await axios.put(API_URL,formData,config,{
                     onUploadProgress:(ProgressEvent)=>{
@@ -187,10 +187,10 @@ const ModifyPlant = () => {
                     setLoading(false);
                     setSuccess(true);
                     if(response.data.fileDownloadUri !== "")inputs.imageUri = response.data.fileDownloadUri;
-                    else inputs.imageUri = "http://localhost:8071/plants/test/default.jpg";
+                    else inputs.imageUri = process.env.REACT_APP_SPRING_URL+"/plants/test/default.jpg";
                     console.log(inputs);
                     console.log(response.data.fileDownloadUri);
-                    fetch(`http://localhost:8071/wiki/modifyPlant/${plantId}`, {
+                    fetch(process.env.REACT_APP_SPRING_URL+`/wiki/modifyPlant/${plantId}`, {
                         method: "POST",
                         headers: {
                             'Content-Type': "application/json",
@@ -202,7 +202,7 @@ const ModifyPlant = () => {
                 });
                 });
             }else{
-                fetch(`http://localhost:8071/wiki/modifyPlant/${plantId}`, {
+                fetch(process.env.REACT_APP_SPRING_URL+`/wiki/modifyPlant/${plantId}`, {
                         method: "POST",
                         headers: {
                             'Content-Type': "application/json",
@@ -261,7 +261,9 @@ const ModifyPlant = () => {
                             <Grid item xs={6} style={{padding:16}}>
                                 <RootRef rootRef={ref}>
                                     <Paper {...rootProps} elevation={0} className={classes.dropzoneContainer} >
-                                    <p>Upuść zdjęcie które chcesz dodać</p>
+                                    <p>Upuść zdjęcie które chcesz dodać<br/>
+                                        Obsługiwane rozszerzenia to .jpg, .jpeg, .png
+                                    </p>
                                     </Paper>
                                 </RootRef>
                             </Grid>
