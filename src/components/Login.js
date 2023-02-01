@@ -63,7 +63,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}/>
             </div>
             <div style={{ margin: "1em" }}>
-                <Button variant="outlined" id="submit" type="button"size="lg" onClick={() => sendLoginRequest()}>Zaloguj</Button>
+                <Button variant="outlined" id="submit" type="button"size="large" onClick={() => sendLoginRequest()}>Zaloguj</Button>
             </div>
         </div>
         </>

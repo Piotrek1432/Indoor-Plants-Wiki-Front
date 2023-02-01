@@ -35,6 +35,8 @@ const Homepage = () => {
     const [categories, setCategories] = useState(null);
     const [pagePlant, setPagePlant] = React.useState(null);
     const [numberOfPages,setNumberOfPages] = useState(0);
+    const [currentPage,setCurrentPage] = useState(1);
+
 
     const [selectedCategory, setSelectedCategory] = useState({
         name: "Wszystkie rośliny",
@@ -52,7 +54,7 @@ const Homepage = () => {
 
     useEffect(() => {
         console.log(process.env);
-        fetch(process.env.REACT_APP_SPRING_URL+"/plants?sort=name", {
+        fetch(process.env.REACT_APP_SPRING_URL+"/plants", {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -101,6 +103,7 @@ const Homepage = () => {
 
     const handleNextPage = (event,value) => {    
         console.log(value*3);
+        setCurrentPage(value);
         setPagePlant(plants.slice((value-1)*12,value*12));
       };
 
@@ -141,12 +144,12 @@ const Homepage = () => {
 
 
             <div style={{ margin: "5em" }}>
-                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} />
+                <Pagination count={numberOfPages} page={currentPage} onChange={handleNextPage} />
                 <br/>
-                <Typography variant="h5" className={classes.title}>
+                <Typography variant="h5" className={classes.title} component={'span'}>
                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.name}</Box>
                 </Typography>
-                <Typography className={classes.title}>
+                <Typography className={classes.title} component={'span'}>
                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.description}</Box><br/>
                 </Typography>
                 <Grid container spacing={2}>
@@ -178,7 +181,7 @@ const Homepage = () => {
                 ) : <></>}
                 </Grid>   
                 <br/>
-                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} /> 
+                <Pagination count={numberOfPages} page={currentPage} onChange={handleNextPage} /> 
             </div> 
             <footer style={{textAlign: "center", padding: "2px", backgroundColor: "DarkGreen", color: "white"}}>
                 <p>Autor: Piotr Jankowski</p>

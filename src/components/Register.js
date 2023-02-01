@@ -99,9 +99,9 @@ const Register = () => {
             {passwordRepeatFocused && password!==passwordRepeat ? <><font color="red">Hasła nie są takie same</font></> : <></>}
             {passwordFocused && <PasswordStrengthIndicator validity={passwordValidity} />}
             { passwordValidity.minChar === true  && passwordValidity.number === true && passwordValidity.specialChar === true && password===passwordRepeat ? 
-                <div style={{ margin: "1em" }}><Button variant="outlined" id="submit" type="button"size="lg" onClick={() => sendRegisterRequest()}>Zarejestruj konto</Button></div>
+                <div style={{ margin: "1em" }}><Button variant="outlined" id="submit" type="button"size="large" onClick={() => sendRegisterRequest()}>Zarejestruj konto</Button></div>
                 :
-                <div style={{ margin: "1em" }}><Button variant="outlined" disabled id="submit" type="button"size="lg" onClick={() => sendRegisterRequest()}>Zarejestruj konto</Button></div>
+                <div style={{ margin: "1em" }}><Button variant="outlined" disabled id="submit" type="button"size="large" onClick={() => sendRegisterRequest()}>Zarejestruj konto</Button></div>
             }
         </div>
         </>

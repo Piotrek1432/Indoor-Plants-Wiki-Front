@@ -93,12 +93,12 @@ const Dashboard = () => {
     const [allPlants, setAllPlants] = useState(null);
     const [allPlantsOutOfCategory, setAllPlantsOutOfCategory] = useState(null);
     const [categories, setCategories] = useState(null);
-    const [selectedPlantName, setSelectedPlantName] = useState('');
     const [selectedPlantId, setSelectedPlantId] = useState('');
     const classes = useStyles();
     const [radioValue, setRadioValue] = React.useState('Add');
     const [pagePlant, setPagePlant] = React.useState(null);
     const [numberOfPages,setNumberOfPages] = useState(0);
+    const [currentPage,setCurrentPage] = useState(1);
 
     const [selectedCategory, setSelectedCategory] = useState({
         name: "Wszystkie rośliny",
@@ -216,6 +216,7 @@ const Dashboard = () => {
 
     const handleNextPage = (event,value) => {    
         console.log(value*3);
+        setCurrentPage(value);
         setPagePlant(plants.slice((value-1)*12,value*12));
       };
 
@@ -282,14 +283,14 @@ const Dashboard = () => {
                             <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
                                 {allPlantsOutOfCategory ? allPlantsOutOfCategory.map((plant,index) =>
                                     <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
-                                ) : <></>}
+                                ) : ""}
                                 <MenuItem value=''>Nie wybrano</MenuItem>
                             </Select> 
                             :
                             <Select value={selectedPlantId} onChange={handleChangeSelectedPlant}>
                                 {plants ? plants.map((plant,index) =>
                                     <MenuItem key={index} value={plant.id}>{plant.name}</MenuItem>
-                                ) : <></>}
+                                ) : ""}
                                 <MenuItem value=''>Nie wybranoo</MenuItem>
                             </Select>
                         }
@@ -317,12 +318,12 @@ const Dashboard = () => {
             {/*  */}
         
             <div style={{ margin: "5em" }}>
-                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} />
+                <Pagination count={numberOfPages} page={currentPage} onChange={handleNextPage} />
                 <br/>
-                <Typography variant="h5" className={classes.title}>
+                <Typography variant="h5" className={classes.title} component={'span'}>
                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.name}</Box>
                 </Typography>
-                <Typography className={classes.title}>
+                <Typography className={classes.title} component={'span'}>
                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>{selectedCategory.description}</Box><br/>
                 </Typography>
                 <Grid container spacing={2}>
@@ -337,12 +338,12 @@ const Dashboard = () => {
                             component='img'
                             /> : <CardMedia className={classes.media} image={process.env.REACT_APP_SPRING_URL+"/plants/test/default.jpg"} title="plant image" component='img'/> }
                             <CardContent>
-                                <Typography gutterBottom variant="h6" component="h2">
+                                <Typography gutterBottom variant="h6" component="h2" >
                                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>
                                         {plant.name}
                                     </Box>
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary" component={'span'}>
+                                <Typography variant="body2" color="textSecondary" component={'span'} >
                                     <Box sx={{ fontFamily: 'Abhaya Libre' }}>
                                         {plant.description}
                                     </Box>
@@ -354,7 +355,7 @@ const Dashboard = () => {
                 ) : <></>}
                 </Grid>
                 <br/>
-                <Pagination count={numberOfPages} page={pagePlant} onChange={handleNextPage} />
+                <Pagination count={numberOfPages} page={currentPage} onChange={handleNextPage} />
                 
             </div> 
             <br/><br/><br/><br/><br/><br/>

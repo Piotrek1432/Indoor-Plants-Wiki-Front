@@ -219,15 +219,15 @@ const PlantView = () => {
                             Komentarze:
                         </Typography>
                         {comments ? comments.map((singleComment,index) =>
-                            <>
-                            <Typography key={index} align="left" style={{padding:1, fontSize:"14px", fontFamily: 'Abhaya Libre', }}>
+                            <React.Fragment key={index}>
+                            <Typography  align="left" style={{padding:1, fontSize:"14px", fontFamily: 'Abhaya Libre', }}>
                             Autor: {singleComment.author.username}{"\xa0\xa0\xa0\xa0\xa0"} Data dodania: {singleComment.createdOn.slice(0, -7)}
                             </Typography>
-                            <Typography key={index} align="left" style={{padding:1, fontSize:"16px", fontFamily: 'Abhaya Libre' }}>
+                            <Typography  align="left" style={{padding:1, fontSize:"16px", fontFamily: 'Abhaya Libre' }}>
                             {singleComment.content}
                             </Typography>
                             <Divider /><br/>
-                            </>
+                            </React.Fragment>
                         ): <></>}
                     </Paper>
                 </Container>
